@@ -41,6 +41,9 @@ def extract_markdown_links(text: str) -> list[tuple[str, str]]:
 def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
     split_list = []
     for old_node in old_nodes:
+        if old_node.text_type != TextType.TEXT:
+            split_list.append(old_node)
+            continue
         text = old_node.text
         if text == "":
             raise ValueError("Node has no text")
@@ -61,6 +64,9 @@ def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
 def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
     split_list = []
     for old_node in old_nodes:
+        if old_node.text_type != TextType.TEXT:
+            split_list.append(old_node)
+            continue
         text = old_node.text
         if text == "":
             raise ValueError("Node has no text")
@@ -77,3 +83,11 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
         if text != "":
             split_list.append(TextNode(text, TextType.TEXT))
     return split_list
+
+def text_to_textnodes(text: str) -> list[TextNode]:
+    nodes = split_nodes_delimiter([TextNode(text, TextType.TEXT)], '**', TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, '_', TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, '`', TextType.CODE)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes

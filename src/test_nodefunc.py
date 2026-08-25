@@ -3,7 +3,7 @@ import unittest
 from textnode import TextNode, TextType
 from node_func import (
     split_nodes_delimiter, extract_markdown_images, extract_markdown_links,
-    split_nodes_image, split_nodes_link
+    split_nodes_image, split_nodes_link, text_to_textnodes
 )
 class TestNodeFunc(unittest.TestCase):
     def test_eq_delim_code(self):
@@ -180,6 +180,32 @@ class TestNodeFunc(unittest.TestCase):
             ],
             new_nodes,
         )
+
+    def test_text_to_textnodes_basic(self):
+        textnodes = text_to_textnodes("This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)")
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("text", TextType.BOLD),
+                TextNode(" with an ", TextType.TEXT),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" word and a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" and an ", TextType.TEXT),
+                TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "https://boot.dev"),
+            ],
+            textnodes
+        )
+
+    def test_text_to_textnodes_empty_string(self):
+        with self.assertRaises(ValueError):
+            textnodes = text_to_textnodes("")
+
+    def test_text_to_textnodes_plain_text(self):
+        textnodes = text_to_textnodes("Nada")
+        self.assertListEqual([TextNode("Nada", TextType.TEXT),], textnodes)
 
 
 if __name__ == "__main__":
