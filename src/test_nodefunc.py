@@ -3,7 +3,7 @@ import unittest
 from textnode import TextNode, TextType
 from node_func import (
     split_nodes_delimiter, extract_markdown_images, extract_markdown_links,
-    split_nodes_image, split_nodes_link, text_to_textnodes
+    split_nodes_image, split_nodes_link, text_to_textnodes, markdown_to_blocks
 )
 class TestNodeFunc(unittest.TestCase):
     def test_eq_delim_code(self):
@@ -206,6 +206,70 @@ class TestNodeFunc(unittest.TestCase):
     def test_text_to_textnodes_plain_text(self):
         textnodes = text_to_textnodes("Nada")
         self.assertListEqual([TextNode("Nada", TextType.TEXT),], textnodes)
+
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+
+    def test_markdown_to_blocks_more_whitespaces(self):
+        md = """
+This is **bolded** paragraph      
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line   
+
+- This is a list
+- with items    
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+
+    def test_markdown_to_blocks_more_newlines(self):
+        md = """
+This is **bolded** paragraph
+
+
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
 
 
 if __name__ == "__main__":
