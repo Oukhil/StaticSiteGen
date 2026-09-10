@@ -1,6 +1,6 @@
 import unittest
 
-from markdown_blocks import markdown_to_blocks, BlockType, block_to_block_type, markdown_to_html_node
+from markdown_blocks import markdown_to_blocks, BlockType, block_to_block_type, markdown_to_html_node, extract_title
 
 class TestMarkdownBlocks(unittest.TestCase):
     def test_markdown_to_blocks(self):
@@ -103,7 +103,7 @@ This is the same paragraph on a new line
         block_type = block_to_block_type("This is a paragraph\nBla-bla a paragraph am I\nCan you tell what I am?")
         self.assertEqual(block_type, BlockType.PARAGRAPH)
 
-    def paragraphs(self):
+    def test_paragraphs(self):
         md = """
 This is **bolded** paragraph
 text in a p
@@ -121,7 +121,7 @@ This is another paragraph with _italic_ text and `code` here
         )
 
 
-    def codeblock(self):
+    def test_codeblock(self):
         md = """
 ```
 This is text that _should_ remain
@@ -136,6 +136,59 @@ the **same** even with inline stuff
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
         )
 
+    def test_extract_title_basic(self):
+        md = """
+# This is the title paragraph
+
+This is another paragraph
+
+- This is an unordered list
+- with items
+"""
+        title = extract_title(md)
+        self.assertEqual(
+            title,
+            "This is the title paragraph"
+        )
+
+    def test_extract_title_trailing_whitespaces(self):
+        md = """
+#          This is the title paragraph
+
+This is another paragraph
+
+- This is an unordered list
+- with items
+"""
+        title = extract_title(md)
+        self.assertEqual(
+            title,
+            "This is the title paragraph"
+        )
+
+    def test_extract_title_h2_instead_of_h1(self):
+        md = """
+## This is the title paragraph
+
+This is another paragraph
+
+- This is an unordered list
+- with items
+"""
+        with self.assertRaises(Exception):
+            text = extract_title(md)
+
+    def test_extract_title_no_h1(self):
+        md = """
+This should've been the title paragraph
+
+This is another paragraph
+
+- This is an unordered list
+- with items
+"""
+        with self.assertRaises(Exception):
+            text = extract_title(md)
 
 
 if __name__ == "__main__":

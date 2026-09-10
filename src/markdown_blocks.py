@@ -55,7 +55,6 @@ def markdown_to_html_node(markdown: str) -> ParentNode:
     for block in blocks:
         node_list.append(block_to_html_node(block))
     return ParentNode("div", node_list)
-    #ihavenoideawhatiamdoing
 
 def block_to_html_node(block: str) -> ParentNode:
     block_type = block_to_block_type(block)
@@ -99,7 +98,7 @@ def block_to_quote_node(block: str) -> ParentNode:
     line_list = block.split('\n')
     stripped_line_list = []
     for line in line_list:
-        stripped_line_list.append(line[1:])
+        stripped_line_list.append(line[1:].strip())
     stripped_text = " ".join(stripped_line_list)
     children = text_to_children(stripped_text)
     return ParentNode("blockquote", children)
@@ -108,7 +107,7 @@ def block_to_unordered_list(block: str) -> ParentNode:
     line_list = block.split('\n')
     children_list = []
     for line in line_list:
-        child_node = text_node_to_html_node(line[2:])
+        child_node = text_to_children(line[2:])
         children_list.append(ParentNode("li", child_node))
     return ParentNode("ul", children_list)
 
@@ -117,7 +116,7 @@ def block_to_ordered_list(block: str) -> ParentNode:
     children_list = []
     for line in line_list:
         line_parts = line.split(". ", 1)
-        child_node = text_node_to_html_node(line_parts[1])
+        child_node = text_to_children(line_parts[1])
         children_list.append(ParentNode("li", child_node))
     return ParentNode("ol", children_list)
 
@@ -125,3 +124,13 @@ def block_to_paragraph(block: str) -> ParentNode:
     line_list = block.split('\n')
     children = text_to_children(" ".join(line_list))
     return ParentNode("p", children)
+
+def extract_title(markdown: str) -> str:
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        if block_to_block_type(block) == BlockType.HEADING:
+            split_block = block.split("# ", 1)
+            if split_block[0] == "":
+                return split_block[1].strip()
+            continue
+    raise Exception("Title extraction failed: No h1 header detected")
