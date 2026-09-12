@@ -1,21 +1,11 @@
 import os
 import shutil
 
-def copy_static() -> list[str]:
+def copy_static() -> None:
 
     root = os.curdir
     source = os.path.join(root, 'static')
     destination = os.path.join(root, 'public')
-
-    if os.path.exists(destination):
-        try:
-            shutil.rmtree(destination)
-        except Exception as e:
-            print(f"Error with removing destination directory: {e}")
-        try:
-            os.mkdir(destination)
-        except Exception as e:
-            print(f"Error with creating destination directory: {e}")
 
     copy_list = recursive_content_copy(source, destination)
 
