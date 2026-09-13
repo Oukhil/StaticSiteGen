@@ -1,11 +1,7 @@
 import os
 import shutil
 
-def copy_static() -> None:
-
-    root = os.curdir
-    source = os.path.join(root, 'static')
-    destination = os.path.join(root, 'public')
+def copy_static(source: str, destination: str) -> None:
 
     copy_list = recursive_content_copy(source, destination)
 
