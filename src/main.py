@@ -9,7 +9,12 @@ source_dir = "./docs"
 
 def main() -> None:
 
-    if os.path.exists("./public"):
+    if len(sys.argv) < 2:
+        basepath = "/"
+    else:
+        basepath = sys.argv[1]
+
+    if os.path.exists(source_dir):
         try:
             shutil.rmtree(source_dir)
         except Exception as e:
